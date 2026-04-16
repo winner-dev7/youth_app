@@ -1,10 +1,11 @@
 import sqlite3
+import os
 from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "etk_embassy"
+app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
 # -----------------------------
 # DECORATEURS (🔴 DOIT ÊTRE EN HAUT)

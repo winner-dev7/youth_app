@@ -2,6 +2,10 @@
 <html>
 <head>
     <title>Collecte</title>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#0ea5e9">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='etk_youth.jpeg') }}">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -47,4 +51,12 @@
     </form>
 
 </div>
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/static/sw.js")
+        .then(() => console.log("Service Worker enregistré"))
+        .catch(err => console.log("Erreur SW:", err));
+}
+</script>
+</body>
 </html>
