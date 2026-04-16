@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historique</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="navbar">
+    📊 Historique |
+    <a href="/dashboard">Dashboard</a>
+    <a href="/">Accueil</a>
+    <a href="/logout">Déconnexion</a>
+
+</div>
+
+<div class="container">
+
+<h2>📅 Historique des collectes</h2>
+
+{% for c in collectes %}
+<div class="collecte-card">
+
+    <div class="collecte-header">
+        <span class="collecte-date">{{ c.date_collecte }}</span>
+        <span>💰 {{ c.montant }} FCFA</span>
+    </div>
+
+    <div class="collecte-body">
+        👥 Payeurs : {{ c.total_paye or 0 }} / {{ c.total_membres }}
+    </div>
+
+</div>
+{% endfor %}
+</div>
+</html>

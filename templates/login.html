@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connexion</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="auth-container">
+
+    <div class="card auth-card">
+        <h2>🔐 Connexion</h2>
+
+        <form method="POST">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Nom utilisateur" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Mot de passe" required>
+            </div>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <p class="auth-link">
+            Pas de compte ? <a href="/register">Créer un compte</a>
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>

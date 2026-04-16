@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<body>
+
+<div class="navbar">
+    📊 Dashboard |
+    <a href="/">Accueil</a>
+    <a href="/collecte">Collecte</a>
+    <a href="/dettes">Dettes</a>
+    <a href="/collectes">Historiques</a>
+    <a href="/logout">Déconnexion</a>
+
+</div>
+
+<div class="container">
+
+<h2>📊 Tableau de bord</h2>
+
+<div class="cards">
+    <div class="card">
+        <h3>👥 Membres</h3>
+        <p>{{ membres }}</p>
+    </div>
+
+    <div class="card">
+        <h3>📅 Collectes</h3>
+        <p>{{ collectes }}</p>
+    </div>
+
+    <div class="card">
+        <h3>💰 Total</h3>
+        <p>{{ total_collecte }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>📉 Dettes</h3>
+        <p>{{ total_dettes }} FCFA</p>
+    </div>
+</div>
+<div class="card">
+    <h3>📈 Évolution des collectes</h3>
+    <canvas id="myChart"></canvas>
+</div>
+    <script>
+const labels = {{ dates|tojson }};
+const data = {{ montants|tojson }};
+
+const ctx = document.getElementById('myChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Montant (FCFA)',
+            data: data,
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: {
+                    color: "#e2e8f0"
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: "#e2e8f0"
+                }
+            },
+            y: {
+                ticks: {
+                    color: "#e2e8f0"
+                }
+            }
+        }
+    }
+});
+
+const totalDettes = {{ total_dettes }};
+
+if (totalDettes > 0) {
+    envoyerNotification(
+        "💰 Dettes en attente",
+        "Certaines cotisations ne sont pas réglées"
+    );
+}
+</script>
+</div>
+
+</body>
+</html>

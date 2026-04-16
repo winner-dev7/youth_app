@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Dettes</title>
+</head>
+<body>
+<div class="navbar">
+    📉 Dettes |
+    <a href="/dashboard">Dashboard</a>
+    <a href="/">Accueil</a>
+    <a href="/logout">Déconnexion</a>
+
+</div>
+
+<div class="container">
+    <h2>Situations des dettes</h2>
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Membre</th>
+            <th>Nombre d'absences</th>
+            <th>Dette</th>
+        </tr>
+
+        {% for d in data %}
+        <tr>
+            <td>{{ d.nom }}</td>
+            <td>{{ d.absences }}</td>
+            <td>{{ d.dette }} FCFA</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Détails des dettes</h3>
+
+<table border="1">
+<tr>
+    <th>Membre</th>
+    <th>Date</th>
+    <th>Montant</th>
+    <th>Action</th>
+</tr>
+
+{% for d in details %}
+<tr>
+    <td>{{ d.nom }}</td>
+    <td>{{ d.date_collecte }}</td>
+    <td>{{ d.montant }} FCFA</td>
+    <td>
+       <form action="/rembourser/{{ d.id }}" method="post" style="display:inline;">
+            <button type="submit">Rembourser</button>
+        </form>
+    </td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>
