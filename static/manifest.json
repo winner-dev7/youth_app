@@ -1,7 +1,8 @@
 {
   "name": "Youth Collect App",
-  "short_name": "Youth contrib",
-  "start_url": "/dashboard",
+  "short_name": "Youth ETK",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
