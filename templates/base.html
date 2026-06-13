@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ETK Youth{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="nav-brand">
+        <i class="fa-solid fa-bolt"></i>
+        <span class="brand-text">ETK Youth</span>
+    </a>
+    <div class="nav-links">
+        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+        </a>
+        <a href="/membres" class="nav-link {% if request.path == '/membres' %}active{% endif %}">
+            <i class="fa-solid fa-users"></i><span>Membres</span>
+        </a>
+        <a href="/collecte" class="nav-link {% if request.path == '/collecte' %}active{% endif %}">
+            <i class="fa-solid fa-money-bill-wave"></i><span>Collecte</span>
+        </a>
+        <a href="/collectes" class="nav-link {% if '/collectes' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-calendar-days"></i><span>Historique</span>
+        </a>
+        <a href="/dettes" class="nav-link {% if request.path == '/dettes' %}active{% endif %}">
+            <i class="fa-solid fa-triangle-exclamation"></i><span>Dettes</span>
+        </a>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Changer de thème">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+    <button class="hamburger" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/" onclick="toggleMenu()">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
+    <a href="/membres" onclick="toggleMenu()">
+        <i class="fa-solid fa-users"></i> Membres
+    </a>
+    <a href="/collecte" onclick="toggleMenu()">
+        <i class="fa-solid fa-money-bill-wave"></i> Nouvelle collecte
+    </a>
+    <a href="/collectes" onclick="toggleMenu()">
+        <i class="fa-solid fa-calendar-days"></i> Historique
+    </a>
+    <a href="/dettes" onclick="toggleMenu()">
+        <i class="fa-solid fa-triangle-exclamation"></i> Dettes
+    </a>
+</div>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+function toggleMenu() {
+    const m = document.getElementById('mobileMenu');
+    m.classList.toggle('open');
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.querySelector('#themeToggle i');
+    if (theme === 'light') {
+        icon.className = 'fa-solid fa-sun';
+    } else {
+        icon.className = 'fa-solid fa-moon';
+    }
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+}
+
+const savedTheme = localStorage.getItem('theme') || 'dark';
+applyTheme(savedTheme);
+</script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

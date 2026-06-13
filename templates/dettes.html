@@ -1,72 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#0ea5e9">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="{{ url_for('static', filename='etk_youth.jpeg') }}">
-    <link rel="stylesheet" href="/static/style.css">
-    <title>Dettes</title>
-</head>
-<body>
-<div class="navbar">
-    📉 Dettes |
-    <a href="/dashboard">Dashboard</a>
-    <a href="/">Accueil</a>
-    <a href="/logout">Déconnexion</a>
+{% extends "base.html" %}
+{% block title %}Dettes — ETK Youth{% endblock %}
 
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-triangle-exclamation"></i> Gestion des dettes
+    </h1>
+    <p class="page-sub">Cotisations impayées</p>
 </div>
 
-<div class="container">
-    <h2>Situations des dettes</h2>
+{% if data %}
 
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>Membre</th>
-            <th>Nombre d'absences</th>
-            <th>Dette</th>
-        </tr>
-
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fa-solid fa-chart-pie"></i> Résumé par membre
+        </h2>
+    </div>
+    <div class="card-body">
         {% for d in data %}
-        <tr>
-            <td>{{ d.nom }}</td>
-            <td>{{ d.absences }}</td>
-            <td>{{ d.dette }} FCFA</td>
-        </tr>
+        <div class="dette-summary-row">
+            <div class="dette-avatar">{{ d.nom[0].upper() }}</div>
+            <div class="dette-info">
+                <div class="dette-nom">{{ d.nom }}</div>
+                <div class="dette-count">
+                    {{ d.nb_dettes }} collecte(s) non payée(s)
+                </div>
+            </div>
+            <div class="dette-montant">
+                {{ "{:,}".format(d.total_dette) }} FCFA
+            </div>
+            <form method="POST" action="/rembourser_tout/{{ d.id }}"
+                  onsubmit="return confirm('Marquer toutes les dettes de {{ d.nom }} comme remboursées ?')">
+                <button type="submit" class="btn btn-sm btn-green">
+                    <i class="fa-solid fa-check-double"></i> Tout solder
+                </button>
+            </form>
+        </div>
         {% endfor %}
-    </table>
-
-    <h3>Détails des dettes</h3>
-
-<table border="1">
-<tr>
-    <th>Membre</th>
-    <th>Date</th>
-    <th>Montant</th>
-    <th>Action</th>
-</tr>
-
-{% for d in details %}
-<tr>
-    <td>{{ d.nom }}</td>
-    <td>{{ d.date_collecte }}</td>
-    <td>{{ d.montant }} FCFA</td>
-    <td>
-       <form action="/rembourser/{{ d.id }}" method="post" style="display:inline;">
-            <button type="submit">Rembourser</button>
-        </form>
-    </td>
-</tr>
-{% endfor %}
-</table>
+    </div>
 </div>
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/sw.js")
-        .then(() => console.log("Service Worker enregistré"))
-        .catch(err => console.log("Erreur SW:", err));
-}
-</script>
-</body>
-</html>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fa-solid fa-list"></i> Détail des dettes
+        </h2>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Membre</th>
+                    <th>Date réunion</th>
+                    <th>Montant</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in details %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:.6rem">
+                            <div class="small-avatar">{{ d.nom[0].upper() }}</div>
+                            {{ d.nom }}
+                        </div>
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-calendar"></i>
+                        {{ d.date_collecte }}
+                    </td>
+                    <td>
+                        <strong>{{ "{:,}".format(d.montant) }} FCFA</strong>
+                    </td>
+                    <td>
+                        <form method="POST" action="/rembourser/{{ d.id }}">
+                            <button type="submit" class="btn btn-sm btn-green">
+                                <i class="fa-solid fa-check"></i> Remboursé
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="fa-solid fa-face-smile fa-2x"></i>
+            <h3 style="color:#10b981;margin:.75rem 0 .5rem">
+                Aucune dette en cours !
+            </h3>
+            <p>Tous les membres sont à jour dans leurs cotisations.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

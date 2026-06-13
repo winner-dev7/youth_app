@@ -1,112 +1,142 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <link rel="icon" href="{{ url_for('static', filename='etk_youth.jpeg') }}">
-<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#0ea5e9">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+{% extends "base.html" %}
+{% block title %}Dashboard — ETK Youth{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-chart-line"></i> Tableau de bord
+    </h1>
+    <p class="page-sub">Vue d'ensemble des cotisations</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="stat-value">{{ membres_count }}</div>
+        <div class="stat-label">Membres</div>
+    </div>
+    <div class="stat-card stat-purple">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="stat-value">{{ collectes_count }}</div>
+        <div class="stat-label">Réunions</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <div class="stat-value">{{ "{:,}".format(total_collecte) }}</div>
+        <div class="stat-label">FCFA collectés</div>
+    </div>
+    <div class="stat-card stat-red">
+        <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-value">{{ "{:,}".format(total_dettes) }}</div>
+        <div class="stat-label">FCFA de dettes</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fa-solid fa-chart-bar"></i> Évolution des collectes
+            </h2>
+        </div>
+        <div class="card-body">
+            {% if dates %}
+            <canvas id="chartCollectes" height="200"></canvas>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-chart-bar fa-2x"></i>
+                <p>Aucune collecte enregistrée</p>
+                <a href="/collecte" class="btn btn-primary">Créer une collecte</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fa-solid fa-ranking-star"></i> Top débiteurs
+            </h2>
+        </div>
+        <div class="card-body">
+            {% if top_debiteurs %}
+            <div class="debiteurs-list">
+                {% for d in top_debiteurs %}
+                <div class="debiteur-item">
+                    <div class="debiteur-rank">{{ loop.index }}</div>
+                    <div class="debiteur-nom">{{ d.nom }}</div>
+                    <div class="debiteur-dette">{{ "{:,}".format(d.total_dette) }} FCFA</div>
+                </div>
+                {% endfor %}
+            </div>
+            <a href="/dettes" class="btn btn-outline" style="margin-top:1rem;width:100%">
+                Voir toutes les dettes <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-face-smile fa-2x"></i>
+                <p>Aucune dette en cours !</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h2 class="section-title">Actions rapides</h2>
+    <div class="actions-grid">
+        <a href="/collecte" class="action-card action-green">
+            <i class="fa-solid fa-plus action-icon"></i>
+            <span class="action-label">Nouvelle collecte</span>
+        </a>
+        <a href="/membres" class="action-card action-blue">
+            <i class="fa-solid fa-user-plus action-icon"></i>
+            <span class="action-label">Gérer les membres</span>
+        </a>
+        <a href="/collectes" class="action-card action-purple">
+            <i class="fa-solid fa-list action-icon"></i>
+            <span class="action-label">Voir l'historique</span>
+        </a>
+        <a href="/dettes" class="action-card action-red">
+            <i class="fa-solid fa-triangle-exclamation action-icon"></i>
+            <span class="action-label">Gérer les dettes</span>
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<body>
-
-<div class="navbar">
-    📊 Dashboard |
-    <a href="/">Accueil</a>
-    <a href="/collecte">Collecte</a>
-    <a href="/dettes">Dettes</a>
-    <a href="/collectes">Historiques</a>
-    <a href="/logout">Déconnexion</a>
-
-</div>
-
-<div class="container">
-
-<h2>📊 Tableau de bord</h2>
-
-<div class="cards">
-    <div class="card">
-        <h3>👥 Membres</h3>
-        <p>{{ membres }}</p>
-    </div>
-
-    <div class="card">
-        <h3>📅 Collectes</h3>
-        <p>{{ collectes }}</p>
-    </div>
-
-    <div class="card">
-        <h3>💰 Total</h3>
-        <p>{{ total_collecte }} FCFA</p>
-    </div>
-
-    <div class="card">
-        <h3>📉 Dettes</h3>
-        <p>{{ total_dettes }} FCFA</p>
-    </div>
-</div>
-<div class="card">
-    <h3>📈 Évolution des collectes</h3>
-    <canvas id="myChart"></canvas>
-</div>
-    <script>
-const labels = {{ dates|tojson }};
-const data = {{ montants|tojson }};
-
-const ctx = document.getElementById('myChart');
-
+<script>
+{% if dates %}
+const ctx = document.getElementById('chartCollectes').getContext('2d');
 new Chart(ctx, {
     type: 'line',
     data: {
-        labels: labels,
+        labels: {{ dates|tojson }},
         datasets: [{
             label: 'Montant (FCFA)',
-            data: data,
-            borderWidth: 2,
-            tension: 0.3
+            data: {{ montants|tojson }},
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16,185,129,0.1)',
+            borderWidth: 2.5,
+            tension: 0.4,
+            fill: true
         }]
     },
     options: {
         responsive: true,
         plugins: {
-            legend: {
-                labels: {
-                    color: "#e2e8f0"
-                }
-            }
+            legend: { labels: { color: '#94a3b8' } }
         },
         scales: {
-            x: {
-                ticks: {
-                    color: "#e2e8f0"
-                }
-            },
-            y: {
-                ticks: {
-                    color: "#e2e8f0"
-                }
-            }
+            x: { ticks: { color: '#64748b' } },
+            y: { ticks: { color: '#64748b' } }
         }
     }
 });
-
-const totalDettes = {{ total_dettes }};
-
-if (totalDettes > 0) {
-    envoyerNotification(
-        "💰 Dettes en attente",
-        "Certaines cotisations ne sont pas réglées"
-    );
-}
+{% endif %}
 </script>
-</div>
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/sw.js")
-        .then(() => console.log("Service Worker enregistré"))
-        .catch(err => console.log("Erreur SW:", err));
-}
-</script>
-</body>
-</html>
+{% endblock %}

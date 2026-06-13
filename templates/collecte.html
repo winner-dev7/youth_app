@@ -1,62 +1,119 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Collecte</title>
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#0ea5e9">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="{{ url_for('static', filename='etk_youth.jpeg') }}">
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Nouvelle collecte — ETK Youth{% endblock %}
 
-<div class="navbar">
-    💰 Nouvelle collecte |
-    <a href="/dashboard">Dashboard</a>
-    <a href="/">Accueil</a>
-    <a href="/logout">Déconnexion</a>
+{% block content %}
 
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-money-bill-wave"></i> Nouvelle collecte
+    </h1>
+    <p class="page-sub">Enregistrer une réunion</p>
 </div>
 
-<div class="card form-card">
+<div class="card form-card-wide">
+    <form method="POST" id="collecteForm">
 
-    <h2>💰 Nouvelle collecte</h2>
-
-    <form method="post">
-
-        <div class="form-group">
-            <label>Date</label>
-            <input type="date" name="date" required>
+        <div class="form-row">
+            <div class="form-group">
+                <label>
+                    <i class="fa-solid fa-calendar"></i> Date de la réunion
+                </label>
+                <input type="date" name="date" value="{{ today }}" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <i class="fa-solid fa-coins"></i> Montant de la cotisation (FCFA)
+                </label>
+                <input type="number" name="montant" placeholder="Ex: 500" min="1" required>
+            </div>
         </div>
 
         <div class="form-group">
-            <label>Montant (FCFA)</label>
-            <input type="number" name="montant" required>
-        </div>
-
-        <h3>👥 Présents</h3>
-
-        <div class="members-grid">
-            {% for m in membres %}
-            <label class="member-card">
-                <input type="checkbox" name="membres" value="{{ m.id }}">
-                <span>{{ m.nom }}</span>
+            <label>
+                <i class="fa-solid fa-pen"></i> Description (optionnel)
             </label>
-            {% endfor %}
+            <input type="text" name="description"
+                   placeholder="Ex: Réunion mensuelle d'avril">
         </div>
 
-        <br>
-        <button type="submit">Enregistrer</button>
+        {% if membres %}
+        <div class="members-section">
+            <div class="members-header">
+                <h3><i class="fa-solid fa-users"></i> Paiements</h3>
+                <div class="select-all-btns">
+                    <button type="button" class="btn btn-sm"
+                            onclick="selectAll('payeurs')">
+                        Tous payé
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline"
+                            onclick="selectNone('payeurs')">
+                        Effacer
+                    </button>
+                </div>
+            </div>
+
+            <div class="members-table-wrapper">
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th>Membre</th>
+                            <th>A payé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in membres %}
+                        <tr data-id="{{ m.id }}">
+                            <td class="membre-name-cell">
+                                <div class="small-avatar">{{ m.nom[0].upper() }}</div>
+                                {{ m.nom }}
+                            </td>
+                            <td class="check-cell">
+                                <label class="toggle-check">
+                                    <input type="checkbox" name="payeurs"
+                                           value="{{ m.id }}"
+                                           class="payeur-cb">
+                                    <span class="toggle-box toggle-blue"></span>
+                                </label>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer la collecte
+        </button>
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+            <p>Aucun membre enregistré.<br>
+               Ajoutez des membres avant de créer une collecte.</p>
+            <a href="/membres" class="btn btn-primary">
+                <i class="fa-solid fa-users"></i> Gérer les membres
+            </a>
+        </div>
+        {% endif %}
 
     </form>
-
 </div>
+
+{% endblock %}
+
+{% block scripts %}
 <script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/sw.js")
-        .then(() => console.log("Service Worker enregistré"))
-        .catch(err => console.log("Erreur SW:", err));
+function selectAll(name) {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
+        cb.checked = true;
+    });
+}
+
+function selectNone(name) {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => {
+        cb.checked = false;
+    });
 }
 </script>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Détail collecte — ETK Youth{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <a href="/collectes" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Retour à l'historique
+    </a>
+    <h1 class="page-title">
+        {% if collecte.description %}
+            {{ collecte.description }}
+        {% else %}
+            Réunion du {{ collecte.date_collecte }}
+        {% endif %}
+    </h1>
+    <p class="page-sub">
+        {{ collecte.date_collecte }}
+        &nbsp;·&nbsp;
+        {{ "{:,}".format(collecte.montant) }} FCFA par personne
+    </p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Membre</th>
+                    <th>A payé</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in details %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:.6rem">
+                            <div class="small-avatar">{{ d.nom[0].upper() }}</div>
+                            {{ d.nom }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if d.a_paye %}
+                            <span class="badge badge-green">
+                                <i class="fa-solid fa-check"></i> Oui
+                            </span>
+                        {% else %}
+                            <span class="badge badge-gray">
+                                <i class="fa-solid fa-xmark"></i> Non
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.a_paye %}
+                            <span class="badge badge-green">
+                                <i class="fa-solid fa-circle-check"></i> Payé
+                            </span>
+                        {% elif d.rembourse %}
+                            <span class="badge badge-purple">
+                                <i class="fa-solid fa-rotate-left"></i> Remboursé
+                            </span>
+                        {% else %}
+                            <span class="badge badge-red">
+                                <i class="fa-solid fa-circle-exclamation"></i> Dette
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

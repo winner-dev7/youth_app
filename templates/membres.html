@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Membres — ETK Youth{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-users"></i> Membres
+    </h1>
+    <p class="page-sub">{{ membres|length }} membre(s) enregistré(s)</p>
+</div>
+
+<div class="card form-card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fa-solid fa-user-plus"></i> Ajouter un membre
+        </h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/add_membre" class="inline-form">
+            <input type="text" name="nom" placeholder="Nom complet du membre"
+                   required autocomplete="off">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Ajouter
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fa-solid fa-list"></i> Liste des membres
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if membres %}
+        <div class="membres-grid">
+            {% for m in membres %}
+            <div class="membre-row">
+                <div class="membre-avatar">{{ m.nom[0].upper() }}</div>
+                <div class="membre-info">
+                    <div class="membre-nom">{{ m.nom }}</div>
+                    {% if m.dette_totale > 0 %}
+                    <div class="membre-badge badge-debt">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        Dette : {{ "{:,}".format(m.dette_totale) }} FCFA
+                    </div>
+                    {% else %}
+                    <div class="membre-badge badge-ok">
+                        <i class="fa-solid fa-circle-check"></i> À jour
+                    </div>
+                    {% endif %}
+                </div>
+                <form method="POST" action="/delete_membre/{{ m.id }}"
+                      onsubmit="return confirm('Supprimer {{ m.nom }} ?')">
+                    <button type="submit" class="btn-icon btn-danger-icon"
+                            title="Supprimer ce membre">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-users fa-2x"></i>
+            <p>Aucun membre pour l'instant.<br>
+               Ajoutez votre premier membre ci-dessus.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,48 +1,85 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Historique</title>
-    <link rel="icon" href="{{ url_for('static', filename='etk_youth.jpeg') }}">
-<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#0ea5e9">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Historique — ETK Youth{% endblock %}
 
-<div class="navbar">
-    📊 Historique |
-    <a href="/dashboard">Dashboard</a>
-    <a href="/">Accueil</a>
-    <a href="/logout">Déconnexion</a>
+{% block content %}
 
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fa-solid fa-calendar-days"></i> Historique des collectes
+    </h1>
+    <p class="page-sub">{{ collectes|length }} réunion(s) enregistrée(s)</p>
+    <a href="/collecte" class="btn btn-primary" style="margin-top:.5rem">
+        <i class="fa-solid fa-plus"></i> Nouvelle collecte
+    </a>
 </div>
 
-<div class="container">
+{% if collectes %}
+<div class="collectes-list">
+    {% for c in collectes %}
+    <div class="collecte-card-v2">
 
-<h2>📅 Historique des collectes</h2>
+        <div class="collecte-left">
+            <div class="collecte-date-badge">
+                <span class="c-month">{{ c.date_collecte[5:7] }}/{{ c.date_collecte[:4] }}</span>
+                <span class="c-day">{{ c.date_collecte[8:10] }}</span>
+            </div>
+            <div class="collecte-info">
+                <div class="collecte-title">
+                    {% if c.description %}
+                        {{ c.description }}
+                    {% else %}
+                        Réunion du {{ c.date_collecte }}
+                    {% endif %}
+                </div>
+                <div class="collecte-meta">
+                    <i class="fa-solid fa-users"></i> {{ c.total_presents }} présent(s)
+                    &nbsp;·&nbsp;
+                    <i class="fa-solid fa-circle-check"></i> {{ c.total_paye }} payeur(s)
+                    sur {{ c.total_membres }} membre(s)
+                </div>
+                {% if c.total_dettes > 0 %}
+                <div class="collecte-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    {{ c.total_dettes }} dette(s) en cours
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-{% for c in collectes %}
-<div class="collecte-card">
+        <div class="collecte-right">
+            <div class="collecte-amount">
+                {{ "{:,}".format(c.montant) }}<span> FCFA</span>
+            </div>
+            <div class="collecte-actions">
+                <a href="/collecte/{{ c.id }}" class="btn btn-sm btn-outline">
+                    <i class="fa-solid fa-eye"></i> Détails
+                </a>
+                <form method="POST" action="/delete_collecte/{{ c.id }}"
+                      style="display:inline"
+                      onsubmit="return confirm('Supprimer cette collecte ?')">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
 
-    <div class="collecte-header">
-        <span class="collecte-date">{{ c.date_collecte }}</span>
-        <span>💰 {{ c.montant }} FCFA</span>
     </div>
+    {% endfor %}
+</div>
 
-    <div class="collecte-body">
-        👥 Payeurs : {{ c.total_paye or 0 }} / {{ c.total_membres }}
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="fa-solid fa-calendar-days fa-2x"></i>
+            <p>Aucune collecte enregistrée.</p>
+            <a href="/collecte" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Créer la première collecte
+            </a>
+        </div>
     </div>
+</div>
+{% endif %}
 
-</div>
-{% endfor %}
-</div>
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/sw.js")
-        .then(() => console.log("Service Worker enregistré"))
-        .catch(err => console.log("Erreur SW:", err));
-}
-</script>
-</body>
-</html>
+{% endblock %}
