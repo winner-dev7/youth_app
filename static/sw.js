@@ -2,14 +2,12 @@ const CACHE_NAME = "youth_app-v2";
 
 const urlsToCache = [
   "/",
-  "/dashboard",
+  "/membres",
+  "/collecte",
   "/collectes",
-    "/collecte",
-    "/members",
-    "/dettes",
+  "/dettes",
   "/static/style.css",
-    "/static/etk_youth.jpeg"
-
+  "/static/icons/etk_youth.jpeg"
 ];
 
 // INSTALL
@@ -22,20 +20,21 @@ self.addEventListener("install", event => {
 
 // FETCH STRATEGY (SMART)
 self.addEventListener("fetch", event => {
+    // On ne gère que les requêtes GET — POST passe directement au réseau
+    if (event.request.method !== "GET") {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then(response => {
-                // clone pour le cache
                 let responseClone = response.clone();
-
                 caches.open(CACHE_NAME).then(cache => {
                     cache.put(event.request, responseClone);
                 });
-
                 return response;
             })
             .catch(() => {
-                // si offline → cache
                 return caches.match(event.request);
             })
     );
